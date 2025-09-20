@@ -10,118 +10,32 @@ weight: 2
 
 # Introduction
 
-This guide gives an overview of all the steps required to officially port a map to Momentum Mod.
+This guide gives an overview of all the steps required to officially port a map to Momentum Mod.  
+The goal of porting is to make minimal changes necessary for the map to function.
 
-Porting is open to everyone, but the number one rule for porters is to **not** significantly change an existing map. We appreciate porting work but the map ultimately belongs to the author, and porters should not make significant visual or gameplay changes on maps without the author's permission (including Easter eggs, sorry!).
+You are free to port any publically avaiable map with some exceptions:
+- Mappers can reserve/block porting of their maps using [this form](https://docs.google.com/forms/d/e/1FAIpQLSeheNDY5A960u6GtXCHtt3s_2vZJL3o5tMJ_ZNbYOpb6cx5nQ/viewform).
+- Before porting make sure the map isn't on [this spreadsheet](https://docs.google.com/spreadsheets/d/1KHeWfhGUNpN267CXtPvVdf2h7eQbjPUhWVkE5NimYhg/edit?gid=2051215588#gid=2051215588).
+- When in doubt, contact the mapper ( please don't spam them )
 
-Please try not to rush through ports, and take time to read these docs. We're happy to help with any porting questions in the _#map-porting_ channel of [our Discord](https://discord.gg/momentummod), ask there if you have any questions.
+# Setup
+If you have any questions feel free to ask for help in #map-porting channel on our [Discord](https://discord.gg/momentummod)!
 
-## Reserving Maps / Getting Permission for Ports
+1. Download [Lumper](https://github.com/momentum-mod/lumper), we will use it to modify the map
+2. Download the map you want to port (maps in **.bz2** format can be extracted using [7zip](https://www.7-zip.org/)):
+    - [fastdl.me](https://main.fastdl.me/69.html) - Contains a huge collection of Surf, Bhop, and KZ maps
+    - [ksf.surf](https://ksf.surf/) (preferred for Surf) - Main hub for competitive surf (**.bz2** format)
+    - [jump.tf](https://jump.tf/forum/) (preferred for RJ/SJ) - Main RJ/SJ forum
+3. Put the map (**.bsp**) in **/momentum/maps** folder
+    - You can access it by right clicking Momentum Mod in your steam library and selecting Manage → Browse local files
+4. Open the map using [Lumper](https://github.com/momentum-mod/lumper)
+5. Open the map in Momentum Mod by opening the console (**~** by default, key below ESC) and typing `map <map name>`
+6. Open the console again and enable cheats (`sv_cheats 1`) as well as Lumper synchronization (`mom_lumper_sync 1`)
+7. Click the "Connect to Game Sync" button in Lumper
+![Lumper Example](/images/map_porting/connect_to_game_sync.png)
 
-Our stance on whether to port an existing maps is **opt-out**, i.e. we assume it's okay to port a map unless a mapper explicitly tells us they don't want it ported. Momentum gamemodes are simply too old with too many inactive mappers for us to get permission in every case, so we've put a great deal of effort into making porting as streamlined as possible. In the majority of cases, porting to Momentum involves far fewer changes than other games (CS:S → CS:GO, CS:S → TF2 etc...). That being said,
+You are now fully set up to start porting the map!
 
-- Mappers can reserve porting their own map or opt out of having their map ported via [this form](https://docs.google.com/forms/d/e/1FAIpQLSeheNDY5A960u6GtXCHtt3s_2vZJL3o5tMJ_ZNbYOpb6cx5nQ/viewform).
-  - Submissions to that form can be found on [this spreadsheet](https://docs.google.com/spreadsheets/d/1KHeWfhGUNpN267CXtPvVdf2h7eQbjPUhWVkE5NimYhg/edit?gid=2051215588#gid=2051215588). **Always** check that sheet first before starting a port. If you submit the map and it's been reserved / opted-out of porting, we'll reject the submission.
-  - If someone has requested it to not be ported, do _not_ spam them with requests to port it.
-- Try to verify whether a map has been released on a public forum (e.g. GameBanana, jump.tf forums) before porting.
-  - Don't port a map if it seems like it's been released for a single server, unless you can get explicit permission.
-- If in doubt, try your best to contact the original mapper.
-
-For mappers porting their own map, restrictions on visual/gameplay changes generally don't apply and you're welcome to recompile for Momentum — it's your map.
-
-# Source Map Basics
-
-Momentum map porting is primarily about manipulating **BSP** files, the format for _compiled_ Source engine maps. In rare cases it may be required to decompile a map to a **VMF** file to edit in Hammer (Source's map editor), but since recompiling causes lighting recalculations and other small changes, we prefer modifying existing BSPs whenever possible.
-
-As a format BSPs are notoriously complex (see the [VDC page](<https://developer.valvesoftware.com/wiki/BSP_(Source)>)), consisting of numerous _lumps_ with different data structures. Fortunately for us, we generally only care about a few:
-
-## The Entity Lump
-
-[Entities](https://developer.valvesoftware.com/wiki/Entity) are responsible for the interactive parts of a map, such as teleporters, spawn points, and triggers.
-
-They can be either **point** entities, which have a single position in the map, or **brush** entities, which are defined by a brush shape in the map.
-
-Entities are composed of _key-value pairs_, where the key is the name of the property and the value is its value.
-
-Entities can have complex logical relationships using _Entity IO_, so avoid manually editing entities unless necessary, and save and reload regularly to test. Often, as with [removing jail timers](/guide/map_submission/map_porting/#jail-timers), you can simply remove a logic_timer without needing to change anything else.
-
-## The Pakfile Lump
-
-The [Pakfile](<https://developer.valvesoftware.com/wiki/BSP_(Source)#Pakfile>) lump contains all the map's assets, such as textures, sounds, and models. It's essentially a ZIP file stored inside the map. When the map is loaded, the game mounts those assets in addition to the currently loaded assets from Momentum and other mounted games (e.g. CS:SS, TF2, etc.).
-
-The pakfile also stores cubemaps, which are used for environment reflections and lighting in the map. These can be generated by the `buildcubemaps` command in-game.
-
-# The Toolkit
-
-## Lumper
-
-The primary tool for porting maps is [Lumper](https://github.com/momentum-mod/lumper), a tool made specifically for modifying BSP files. It functions as a successor to tools like [VIDE](https://developer.valvesoftware.com/wiki/VIDE) and [Entspy](https://developer.valvesoftware.com/wiki/Entspy), but supports Strata Source BSPs and contains features specifically aimed at map porting and reviewing. It includes:
-
-- **Entity Editor** - Create and modify entities in the map
-- **Pakfile Explorer** - View and edit the pakfile as a file tree. It can be used to remove or pack assets, as well as automatically refactor references to assets in other lumps.
-- **Texture Browser** - View all textures in a map, similar to Hammer's texture browser. This is used for content review.
-- **Jobs** - Automated tasks that can be run on the BSP, such as:
-  - Remove official Valve assets
-  - Apply [Stripper](https://www.bailopan.net/stripper/) configs
-  - Batch replace textures
-- **Entity Review** - Lists invalid or problematic entities in the map
-- **Compressed BSP Saving** - Saves the BSP in a compressed format, which is required for map submissions
-- **Map Summary** - Reviews content in the BSP according to map submission requirements
-
-![Lumper Example](/images/map_porting/lumper_example.png)
-
-To use Lumper, download the latest release from the [Lumper releases page](https://github.com/momentum-mod/lumper/releases). Lumper is a standalone application, so you can run it without installing anything. Just extract the ZIP file and run it from anywhere.
-
-{{< hint info >}} For Windows users, you can run `RegisterLumperURLProtocol.ps1` with PowerShell to register the `lumper://` URL protocol. This allows you to open BSP files directly from dashboard map pages, which is useful for reviewing. {{< /hint >}}
-
-You can use Lumper to open any BSP file, modify it accordingly, and then save it.
-
-Please note that Lumper does _not_ currently have undo/redo functionality, so be careful when making changes. Save regularly — Lumper will create backup files in the same directory by default.
-
-### Game Sync
-
-When editing entities, it can be difficult to find specific ones in the Entity Editor. You can use `getpos` and `setpos` in-game alongside Entity Editor filters and `origin` properties to find entities, but we also have a system called **Game Sync** which drastically improves this workflow.
-
-To enable game sync, launch the game on the current map loaded in Lumper, set `sv_cheats 1` and `mom_lumper_sync_enable 1`. Then, press the "Connect to Game Sync" button in the top-right corner of Lumper. You should be able to:
-
-- Sync your current in-game position with the "Spherical Radius" filter
-- Sync the entity you're currently looking at with the key-value filters
-- Teleport to entities by pressing the arrow icon on the Entity Editor list
-- Automatically import Stripper configs from the in-game Entity Tools into Lumper
-
-### Map Summary
-
-Lumper's "Map Summary" info box (_Tools > Map Summary_) is a quick way to summarize the current state of the map. Map reviewers will always use this tool to check the map before approving it, so it's a good idea to check it yourself as you go.
-
-![Lumper Map Summaries](/images/map_porting/lumper_map_summary.png)
-
-## In-Game Entity Tools
-
-Some entities must be modified or replaced to improve gameplay and promote competitive integrity according to Momentum Mod's standards.
-
-Entities can be modified in-game with the `devui_show entitytools` command. This command will open an interface with various tools for quickly modifying and fixing map entities, and can modify those entities in-game in real-time, allowing you to test the changes without reloading the map.
-
-![Entity Tools Example](/images/map_porting/entitytools_example.png)
-
-{{< hint info >}} The Entity Tools use ImGui which can have very small fonts on large monitors. You can use `devui_font_scale` to change the font size. {{< /hint >}}
-
-### Exporting to Lumper
-
-The Entity Tools change in-game entities in real-time. To permanently apply these changes to a BSP, it generates a [Stripper](https://www.bailopan.net/stripper/) config file that can be used in [Lumper](#lumper).
-
-You can export changes made with the Entity Tools by clicking the "Export To File" button. The entity changes are then written to a \<mapname\>.cfg file in your `maps/entitytools_stripper` folder. To use these files in Lumper, go to the **Jobs** page, create a _Stripper (File)_ job, and then load it from disk.
-
-Alternatively if you have Game Sync enabled, you can click the "Export to Lumper" button in the Entity Tools, which will immediately create a _Stripper (Text)_ job.
-
-Once a job is created, you can run it by clicking the "Run" button. This will apply the changes to the BSP file in Lumper. These changes will be displayed in the logs panel and modified entities will be marked as changed (indicated by \*) in the Entity Editor.
-
-![Example Entity Tools Export](/images/map_porting/lumper_entitytools_export.png)
-
-## Hammer
-
-Entities can also be modified in Hammer without having to recompile the entire BSP. This is done by decompiling the map, making the entity changes, and then compiling with the "Only entities" option checked. The BSP file has to be in the same directory as the vmf for this to work.
-
-![Only Entities](/images/map_porting/only_entities.png)
 
 # Required Modifications
 
