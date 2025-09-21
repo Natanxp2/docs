@@ -82,7 +82,7 @@ Use the 'Texture Browser' tab in Lumper to see which game each asset comes from
 2. Consider resizing/reencoding any assets that take a lot of space (marked by yellow/red)  
     - If the texture is at or above 2048x2048 it consider resizing it down a level  
     - If the texture uses an uncompressed format consider reencoding it  
-    - This should be evaluated on a case by case basis, if you are unsure whether you should modify the textures, leave them as they are  
+    - This should be evaluated on a case-by-case basis, if you are unsure whether you should modify the textures, leave them as they are  
 
 ![4096_asset](/images/map_porting/4096_asset.png)
 ![4096_asset](/images/map_porting/4096_asset_details.png)
@@ -101,7 +101,7 @@ Sounds in Momentum Mod need to be categorized properly for volume sliders to wor
 2. Scroll to the bottom to see if **/sound** folder exists
 3. If it does, listen to every sound and categorize them according to the following table
     - You can use 'Open in External Program' button or right click → export the entire folder to listen to the sounds
-    - Right click on **/sound** → Create Directory , then drag and drop sounds into appropriate folders. Click **yes** 
+    - Right click on **/sound** → Create Directory , then drag and drop sounds into appropriate folders. Click **yes** on the pop-up
     
 | Channel  | Folder         |
 | -------- | -------------- |
@@ -115,7 +115,7 @@ Sounds in Momentum Mod need to be categorized properly for volume sliders to wor
 If you renamed the map during the [setup](/guide/map_submission/map_porting/#setup), reflections might be broken.
 1. Go to 'Pakfile Explorer' in Lumper
 2. Check if the map has **/materials/maps/<old_map_name>** folder
-3. If it does right click → Rename that folder to the new map name
+3. If it does right click → Rename that folder to the new map name. Click **yes** on the pop-up
 ![rename_cubemaps](/images/map_porting/rename_cubemaps.png)
 
 ## Step 4: Fix Entities
@@ -124,26 +124,18 @@ If you renamed the map during the [setup](/guide/map_submission/map_porting/#set
     - Clicking the edit button on the right will bring you to 'Entity Editor'. You may delete the entity there
 3. Fix other entities by following the comments in Lumper and guides listed below
     - Some **warnings** can be fixed, some will need to be removed, and some can stay unchanged.
-    - Thanks to game sync, you can teleport to any entity simply by clicking the button next to it
-    IMAGE HERE IMAGE HERE IMAGE HERE IMAGE HERE DON'T FORGET
+    - Thanks to game sync, you can teleport to any entity simply by clicking the button next to it in 'Entity Editor' tab
 
-| Boosters         | Logic            | Other            |
-| --------         | --------------   | --------------   |
-| trigger_push     | logic_auto       | trigger_teleport |
-| trigger_multiple | logic_timer      | func_button      |
-| trigger_catapult |                  |                  |
+| Boosters                                                                    | Logic                                                             | Other                                                                       |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------   |
+| [trigger_push](/guide/map_submission/fixing_entities/#trigger_push)         | [logic_auto](/guide/map_submission/fixing_entities/#logic_auto)   | [trigger_teleport](/guide/map_submission/fixing_entities/#trigger_teleport) |
+| [trigger_multiple](/guide/map_submission/fixing_entities/#trigger_multiple) | [logic_timer](/guide/map_submission/fixing_entities/#logic_timer) | [func_button](/guide/map_submission/fixing_entities/#func_button)           |
+| [trigger_catapult](/guide/map_submission/fixing_entities/#trigger_catapult) |                                                                   |                                                                             |
 
-# Required Modifications
 
-## Entities
 
-### Jail Timers
 
-Some old surf maps use a `logic_timer` to teleport all players to a jail after a few minutes. These timer entities and the associated teleport triggers should be removed using Lumper:
-
-![Lumper Timer](/images/map_porting/lumper_timer.png)
-
-![Lumper Teleports](/images/map_porting/lumper_teleports.png)
+# UNFINISHED STUFF BELOW
 
 
 ### Moving Brushes
@@ -163,19 +155,6 @@ Community servers often use Stripper configs for tweaking maps at runtime. Lumpe
 - Tempus (RJ/SJ) https://github.com/waldotf/tempus_stripper_code
 
 ## Textures
-
-Maps will sometimes contain textures that we don't want to include:
-
-- Pornography, racism, or other "edgy" content
-  - If something seems questionable and you're not sure about it, ask in Discord.
-- Obvious copyrighted assets from other media
-  - See [map submission guidelines](/guide/map_submission/map_submission/#other-copyright-assets)
-  - This can be hard to make a judgment call on. Just look out for anything _extremely_ glaring.
-  - Again, ask in Discord if you're unsure.
-
-Lumper's **Texture Browser** is a fast way to quickly review all textures in the map, and can be used to replace bad textures with placeholders.
-
-![Lumper Texture Browser](/images/map_porting/lumper_texture_browser.png)
 
 The easiest way to replace a texture is to modify any VMT files that refer to the VTF file in question.
 

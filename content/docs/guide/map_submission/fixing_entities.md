@@ -57,7 +57,7 @@ In this case modifications are required depending on where the trigger is placed
 5. Click 'Convert to Set Speed'
 6. Redo steps 2-5 for all appropriate triggers
 7. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
-![Surf Ramp Boost](/images/map_porting/convert_to_setspeed.png)
+![Convert To SetSpeed](/images/map_porting/convert_to_setspeed.png)
 
 ## trigger_multiple
 This trigger can be used for many various effects, the only ones that are important here are those that act as boosters.  
@@ -79,9 +79,34 @@ This trigger can be used for many various effects, the only ones that are import
 ## trigger_catapult
 All catapults that boost the player directly up will be broken in Momentum Mod.  
 Fix them by multiplying the value of the **playerSpeed** key by 1.5
-![Surf Ramp Boost](/images/map_porting/fix_vertical_catapults.png)
+![Fix Vertical Catapults](/images/map_porting/fix_vertical_catapults.png)
 
 # Logic
+These entites manage logic on the map. They need to be evaluated case-by-case and removed if necessary
+
+## logic_auto
+While logic_auto is generally necessary, some maps use it to set server variables. This is not allowed in Momentum Mod
+
+1. Look through outputs of every logic_auto
+2. Remove only outputs that have parameters starting with **sv_** or **mp_**
+    - Take note of **sv_maxvelocity** if present, you will need to set that value when zoning
+    - If **sv_allowbunnyhopping 1** is present, you will need to consider globally allowing bhop on the map, this generally only matters for **Surf**
+3. If by the end of that process the entity doesn't have any outputs, you can remove it completely
+![Delete Server Commands](/images/map_porting/delete_server_commands.png)
+
+## logic_timer
+This entity is generally used for displaying time on Rocket Jump / Sticky Jump / KZ maps.  
+Old surf maps however, often use it to teleport players to jail after set amount of time.
+If used for jail, this and all associated entities need to be removed.
+
+1. Determine if **logic_timer** is used for jail, either by playing the map or reading keyvalues such as **targetname**
+2. If it's used for jail, copy the **Target Entity Name** to **Value** field
+    - Make sure to clear out all other search fields so that no entities are filtered out
+3. Remove **all** entities that come up
+4. Remove the original **logic_timer**
+![Lumper Timer](/images/map_porting/lumper_timer.png)
+
+![Lumper Teleports](/images/map_porting/lumper_teleports.png)
 
 # Other entities
 This section lists various entities that have changed behavior in Momentum Mod and require modifications
@@ -109,6 +134,7 @@ You should not blindly edit these using 'Entity Tools' as that may lead to break
 2. Click on **Add KeyValue**
 3. In the 'newproperty' field type **velocitymode**
 4. In the 'newvalue' field type **1**
+![Fix Preserving Speed](/images/map_porting/fix_preserving_speed.png)
 
 ## func_button
 Shooting a button to activate it in **Rocket Jump** can have a different effect in Momentum Mod compared to TF2
