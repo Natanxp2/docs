@@ -47,6 +47,10 @@ You are now fully set up to start porting the map!
     - Screenshots will be saved to **/momentum/screenshots**
     - You can bind the screenshot command to a key for ease of use in keybind settings or with console by typing `bind <key> mom_official_screenshot`
     
+{{<hint warning>}}
+If you notice broken reflections while taking screenshots, [cubemaps](/guide/map_submission/map_porting/#cubemaps) section of this guide will help with fixing them
+{{< /hint >}}
+    
 {{< hint info >}}
 
 Some mappers provide their own screenshots on [gamebanana](https://gamebanana.com/) (Surf, Bhop, KZ) or [jump.tf](https://jump.tf/forum/) (RJ/SJ).  
@@ -108,73 +112,30 @@ Sounds in Momentum Mod need to be categorized properly for volume sliders to wor
 | UI       | sound/ui/      |
 
 ### Cubemaps
-If you renamed the map in [Setup](/guide/map_submission/map_porting/#setup) point 4, reflections might be broken.
+If you renamed the map during the [setup](/guide/map_submission/map_porting/#setup), reflections might be broken.
 1. Go to 'Pakfile Explorer' in Lumper
 2. Check if the map has **/materials/maps/<old_map_name>** folder
 3. If it does right click → Rename that folder to the new map name
 ![rename_cubemaps](/images/map_porting/rename_cubemaps.png)
 
 ## Step 4: Fix Entities
+1. Go to the 'Entity Report' tab in Lumper.
+2. Remove all **invalid** entities
+    - Clicking the edit button on the right will bring you to 'Entity Editor'. You may delete the entity there
+3. Fix other entities by following the comments in Lumper and guides listed below
+    - Some **warnings** can be fixed, some will need to be removed, and some can stay unchanged.
+    - Thanks to game sync, you can teleport to any entity simply by clicking the button next to it
+    IMAGE HERE IMAGE HERE IMAGE HERE IMAGE HERE DON'T FORGET
 
+| Boosters         | Logic            | Other            |
+| --------         | --------------   | --------------   |
+| trigger_push     | logic_auto       | trigger_teleport |
+| trigger_multiple | logic_timer      | func_button      |
+| trigger_catapult |                  |                  |
 
 # Required Modifications
 
 ## Entities
-
-### Entity Review
-
-Lumper's entity review tool will point out entities that are not supported by Momentum, or should be replaced with a different entity.
-
-If an entity is marked as **Invalid** or **Warning**, it will generally have comments explaining the issue and what to replace it with. Invalid entities **must** be replaced or removed, while warnings are suggestions that are worth reviewing.
-
-Pressing the "Edit" button on the right side of an entity in the Entity Review page takes you to the Entity Editor, and filters the list by that entity's classname. If you're not sure of the entity's purpose, teleporting in-game using [Game Sync](#game-sync) is helpful. You can also press the **VDC Reference** button on a page for that entity to see its docs on the Valve wiki. And if in doubt, please ask for help in the _#map-porting_ channel on Discord!
-
-### Boost Ramps
-
-`trigger_push` entities that push the player into a ramp are very inconsistent and give different speeds depending on how you jump into it. Replace these with `trigger_setspeed` for a more consistent and less exploitable boost.
-
-Running directly into a trigger_push and getting boosted by it will automatically record your resulting horizontal and vertical speed in the Entity Tools window. Clicking "Convert to Set Speed" will then perform the conversion, applying the best settings to replicate this boost consistently. The resulting `trigger_setspeed` may have a horizontal speed that differs from the original trigger, but in combination with the automatically detected vertical speed, the original boost is replicated accurately.
-
-![Ramp Boost](/images/map_porting/setspeed.png)
-
-### Rapidly Reactivating Boost Triggers
-
-The player can sometimes activate a boost multiple times in quick succession with problematic techniques, including "crouchboosting". Different styles of boost triggers require different adjustments to fix this issue:
-
-1. **Jump-based Boosts** - Boosts that are designed such that the player should be boosted when they jump on them should be converted into a `trigger_multiple` that boosts the player with an `OnJump` output, such as `OnJump !activator,AddOutput,basevelocity # # #`.
-
-![Floor Boost](/images/map_porting/floor_boost.png)
-
-2. **Constant Push Floor Boosts** - If the boost is `trigger_push` based and it is important that the player is continuously pushed while inside it (not just when they jump or exit the trigger), you can leave it as a `trigger_push`, but use a `filter_momentum_surface_collision` filter with the "Touching standable surfaces" option so the boost only applies when the player is on the ground. You should only use this option if the floor is completely flat, otherwise the boost will re-apply every time the player touches another surface. If you have the original VMF and can recompile the map, removing the trigger and replacing the surface below it with a `func_conveyor` is also an option.
-
-3. **Surf Ramp Boosts and Other Airborne Boosts** - When there is no ground for the player to jump on, a boost can be fixed by temporarily disabling itself on exit, so the player has to wait before re-activating the trigger. This is achieved using `OnEndTouch` outputs, e.g. `OnEndTouch !self,Disable,,0` and `OnEndTouch !self,Enable,,1`. The Cooldown option in Entity Tools lets you easily create and configure this for existing triggers.
-
-![Surf Ramp Boost](/images/map_porting/surf_ramp_boost.png)
-
-### Jump Boosts
-
-Boosts that should boost the player when they jump should use the new `OnJump` output instead of `OnEndTouch`. In addition to avoiding crouchboost exploits as mentioned previously, this also prevents other exploits. This goes for both basevelocity-based and gravity-based boosters.
-
-![OnJump Boost](/images/map_porting/onjump_boost.png)
-
-Some upward boosts briefly reverse the player's gravity instead of using basevelocity. This method may have a gradual and potentially awkward acceleration period. In particularly bad cases, consider converting these to the snappier basevelocity style. Note that the map geometry is sometimes built around the gravity acceleration period in a way that basevelocity cannot replace, so be sure to test this change well before committing it.
-
-### Drop Teleports
-
-Some maps, most notably surf maps, teleport the player into a floating "cage" that is open on the bottom to reset the player's velocity after they fail or transition between stages.
-
-![Drop Teleport](/images/map_porting/drop_tele.png)
-
-Momentum Mod introduces the "Keep Negative Z Velocity Only" velocity mode option for `trigger_teleport` that removes any horizontal velocity or upward vertical velocity from entities when they are teleported. This is more robust than only relying on the cage, but more importantly, this activates some important behaviors in Momentum Mod:
-
-- When teleporting directly into a stage zone, it keeps the zone from activating until the player lands on the ground. This results in more competitively correct splits.
-- It prevents players from using air acceleration until they land on the ground, preventing an unfavorable technique to gain speed early.
-
-{{< hint info >}} These behaviors only activate when there is standable ground below the teleport destination, but you should still use "Keep Negative Z Velocity Only" for caged teleport destinations that are not above standable ground. {{< /hint >}}
-
-All teleports with caged teleport destinations should use this velocity mode. In the in-game Entity Tools, open the "Teleport Velocity Mode" dropdown, select the destination that you want to change to a drop teleport, and then select the "Keep Negative Z" radio button.
-
-![Velocity Mode Tools](/images/map_porting/velocity_mode.png)
 
 ### Jail Timers
 
@@ -184,22 +145,6 @@ Some old surf maps use a `logic_timer` to teleport all players to a jail after a
 
 ![Lumper Teleports](/images/map_porting/lumper_teleports.png)
 
-### Fix Landmark Teleport Angles
-
-{{< hint warning >}} TODO: Are we really keeping this? Doesn't new behaviour make pretty redundant? If so could show Entity Tools usage {{< /hint >}}
-
-- Our trigger_teleport logic uses CS:GO's landmark teleport logic, which is different from older games. It is backwards compatible with older games, but achieving compatibility may require simple adjustments to entity props.
-- Landmark teleports originally made for older games may need to be changed to make the angles of the teleport destination and landmark entity match, and disable `UseLandmarkAngles` as well.
-
-### func_button
-
-Many maps in TF2 use the `OnDamaged` output on buttons. In Momentum Mod, `OnDamaged` fires once per instance of damage. This means a button using this output will fire up to 9 times when shot by a shotgun.  
-If this causes unintended effects (such as incrementing a `math_counter` too many times), then the following changes will make the button fire the output only once upon being shot:
-
-- Enable the `Damage Activates` flag if not already enabled (by adding 512 to `spawnflags`)
-- Change `OnDamaged` outputs to `OnPressed`
-
-If buttons are taking forever to reset or moving when they shouldn't be, enable the `Don't Move` spawnflag as well (by adding 1 to `spawnflags`).
 
 ### Moving Brushes
 
@@ -245,31 +190,6 @@ VMTs are text files that define how the texture is used in the game, such as its
 
 Note that multiple VMT files can refer to the same VTF file, so you may need to check multiple VMTs if the texture is used in multiple places. {{< /hint >}}
 
-## Packed Game Assets
-
-The pakfile lump of many maps contain copyrighted Valve assets, which we [cannot include](/guide/map_submission/map_submission/#source-assets).
-
-Lumper contains a hash-based manifest file of all these assets, so removing them is very straightforward. You just need to run the **Remove Game Assets** job.
-
-![Remove Game Assets](/images/map_porting/lumper_remove_assets.png)
-
-## Sounds
-
-The game allows players to set a volume level for each of several sound channels. Sound files packed in each map should be organized into specific folders corresponding to these sound channels:
-
-| Channel  | Folder         |
-| -------- | -------------- |
-| Ambient  | sound/ambient/ |
-| Music    | sound/music/   |
-| Movement | sound/player/  |
-| Weapons  | sound/weapon/  |
-| UI       | sound/ui/      |
-
-Lumper makes this process easy by automatically detecting entities and soundscapes that use these sounds (in fact it works for all assets!) and updating their paths. Simply drag-and-drop the sounds you want to move into the appropriate folder, then press "Yes" on the dialog that appears.
-
-![Lumper Sound Moving](/images/map_porting/lumper_sound_moving.png)
-
-_Note: Path refactoring is very technically complex and has had issues in the past, so it's worth checking logs make sense and testing in game_
 
 ## Limited Ammo Triggers
 
