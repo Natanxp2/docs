@@ -40,6 +40,7 @@ If you have any questions feel free to ask for help in **#map-porting** channel 
 6. Open the map in Momentum Mod by opening the console (**~** by default, key below ESC) and typing `map <map name>`
 7. Open the console again and enable cheats (`sv_cheats 1`) as well as Lumper synchronization (`mom_lumper_sync 1`)
 8. Click the "Connect to Game Sync" button in Lumper
+
 ![Lumper Example](/images/map_porting/connect_to_game_sync.png)
 
 You are now fully set up to start porting the map!
@@ -71,6 +72,7 @@ Valve's assets may still be used on maps however it is necessary to remove them 
 1. Go to 'Jobs' tab in Lumper
 2. Add "Remove Game Assets" job
 3. Run the job
+
 ![Remove Game Assets](/images/map_porting/lumper_remove_assets.png)
 
 {{< hint info >}}
@@ -87,7 +89,7 @@ Use the 'Texture Browser' tab in Lumper to see which game each asset comes from
 2. Consider resizing/reencoding any assets that take a lot of space (marked by yellow/red)  
     - If the texture is at or above 2048x2048 it consider resizing it down a level  
     - If the texture uses an uncompressed format consider reencoding it  
-    - This should be evaluated on a case-by-case basis, if you are unsure whether you should modify the textures, leave them as they are  
+    - This should be evaluated on a case-by-case basis, if you are unsure whether you should modify the textures, leave them as they are
 
 ![4096_asset](/images/map_porting/4096_asset.png)
 ![4096_asset](/images/map_porting/4096_asset_details.png)
@@ -126,6 +128,7 @@ You can skip this step if you didn't rename the map
 1. Go to 'Pakfile Explorer' in Lumper
 2. Check if the map has **/materials/maps/<old_map_name>** folder
 3. If it does right click → Rename that folder to the new map name. Click **yes** on the pop-up
+
 ![Rename Cubemaps](/images/map_porting/rename_cubemaps.png)
 
 ## Step 4: Fix Entities
@@ -149,13 +152,23 @@ These are still common enough though, that they need to be covered in this guide
 Please look through them but more likely than not you will be ready to move on to [Step 5](/guide/map_submission/map_porting/)
 
 
-### Old Bhop platforms
+### Old Bhop Platforms
 Some old bhop maps use **func_button** or **func_door** for bhop platform. These should be converted to **func_bhop**
 1. Open entity tools by typing `devui_show entitytools` in console
 2. Open the 'Bhop Block Fix' section
     - If the number of 'Bhop Blockfix Entities' is **0** you don't need to fix anything
 3. Make sure the checkbox is ticked ( it should be by default )
 4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+
+### Small Models
+Maps compiled on an old version of source engine can have models that are too small.
+1. Open entity tools by typing `devui_show entitytools` in console
+2. Open the 'Model Scale Fix' Section
+3. Click 'Fix All Model Scales'
+4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+
+![Small Models Before](/images/map_porting/fix_model_scale_before.png)
+![Small Models After](/images/map_porting/fix_model_scale_after.png)
 
 ### Stripper Configs
 Community servers sometimes apply server side fixes to maps ( mainly applicable to Rocket Jump / Sticky Jump )  
@@ -175,12 +188,14 @@ If you're not sure if you should use them, please ask in **#map-porting** channe
 2. Go to 'Jobs' tab in Lumper
 3. Add the 'Stripper (File)' job
 4. Provide the path to your downloaded **.cfg** and run the job
+
 ![Download Stripper Config](/images/map_porting/download_stripper_config.png)
 ![Apply Stripper Config](/images/map_porting/apply_stripper_config.png)
 
 ### Invalid VMT Files
 Momentum Mod uses stricter parsing rules than other source games  
 Fix **.vmt** of broken textures using the 'Pakfile Explorer' in Lumper
+
 ![Invalid VMT](/images/map_porting/invalid_vmt.png)
 ![Invalid VMT Lumper](/images/map_porting/invalid_vmt_lumper.png)
 
@@ -190,9 +205,9 @@ Skyboxes will sometimes fail to load in maps compiled with HDR.
 2. Find the **.vmts** of the skybox
     - It will be in **/materials/skybox**
     - There will be 6 pairs of **.vmt** and **.vtf**, one for each side
-3. Open every **.vmt** and change the first line to **"Sky_SDR"** (including quotes)  
-TODO: GET A PROPER LUMPER SCREENSHOT FOR THIS. WHAT IS THE MAP BELOW?
-![VTF Edit Sky SDR](/images/map_porting/vtfedit_sky_sdr.png)
+3. Open every **.vmt** and change the first line to **"Sky_SDR"** (including quotes)
+
+![VTF Edit Sky SDR](/images/map_porting/lumper_sky_sdr.png)
 ![HDR Skybox](/images/map_porting/hdr_skybox.png)
 
 ### Missing Shadows on CS:GO Maps
@@ -204,6 +219,7 @@ In Momentum Mod **env_cascade_light** entity must exist for them to display prop
     - This will create an empty entity showing as **\<missing classname!\>** in the list
 3. Fill out the new entity using the image below
     - Copy the origin value from any other entity
+    
 ![CSM Lumper](/images/map_porting/csm_lumper.png)
 ![Missing CSM Entity](/images/map_porting/csm_broken.png)
 ![Working CSM](/images/map_porting/csm_working.png)
@@ -211,8 +227,26 @@ In Momentum Mod **env_cascade_light** entity must exist for them to display prop
 ### Corrupt HDR Cubemaps
 Some maps from CS:S have corrupted reflections in Momentum Mod.  
 In cases we've seen they've been flat blue/black textures.  
-[github info for later](https://github.com/momentum-mod/game/issues/2315#issuecomment-3097105058).  
-TODO: ACTUALLY ADD STEPS TO FIX THIS: [Asked about it on discord](https://discord.com/channels/235111289435717633/569734083496902656/1419721854020489407)
+1. Download the CS:GO version of the map
+    - Check if it exists on [gamebanana](https://gamebanana.com/) or [surfheaven](https://surfheaven.eu/)
+2. Open it in lumper and go to the 'Pakfile Explorer' tab
+3. Export the entire **/materials/maps** folder
+4. Close Lumper
+    - You may now delete the cs:go port you downloaded
+5. Open the map you were porting in Lumper
+6. In 'Pakfile Explorer' delete the entire **/materials/maps** folder
+7. Right click on **/materials** and create a new **/maps** folder
+8. Right click on **/maps** → Import Directory
+9. Import the **maps** folder you extracted
+
+{{<hint info>}}
+
+If the CS:GO port doesn't exist you can manually delete → import → rename every single **.vtf** file in **/materials/maps** with [this file](https://cdn.discordapp.com/attachments/1370920480910999614/1402525150955700224/c-2569_4133_3847.hdr.vtf?ex=68d2da15&is=68d18895&hm=e1d55c87f0283e7bfde1b2b9372b62d6002314d937f157b7fff9112fd8d02841&)  
+You need to make sure all filenames match **exactly** after importing and renaming  
+The best way is to copy the **.bsp** for backup and open 2 Lumper windows side by side so that you can copy the filenames from one to the other  
+TODO: Rewrite if replacing textures with vtfs is added to lumper
+
+{{</hint>}}
 
 ![Corrupt Cubemaps](/images/map_porting/corrupt_cubemaps.png)
 
@@ -248,6 +282,7 @@ Apply your best judgement when attempting it.
 Some maps have moving brushes which have cycles that are too fast to be hit consistently which effectively introduces RNG to competitive runs.    
 They should be frozen or deleted **only** if there is **community consensus** around it.  
 If you're not sure about this, please ask in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)!
+
 ![Moving Brushes](/images/map_porting/moving_brushes.gif)
 
 ## Step 5: [Zone the Map](/guide/map_submission/map_zoning/)
@@ -274,7 +309,6 @@ Note that multiple VMT files can refer to the same VTF file, so you may need to 
 Refraction textures in most maps do not render correctly. The cause of this issue is unknown and the only way to fix it currently is to recompile.
 
 ![Dark Refraction Textures](/images/map_porting/refraction_dark.png)
-
 ![Fixed Refraction Textures](/images/map_porting/refaction_fixed.png)
 
 
