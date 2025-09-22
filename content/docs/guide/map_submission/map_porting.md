@@ -26,6 +26,11 @@ If you have any questions feel free to ask for help in #map-porting channel on o
     - [fastdl.me](https://main.fastdl.me/69.html) - Contains a huge collection of Surf, Bhop, and KZ maps
     - [ksf.surf](https://ksf.surf/) (preferred for Surf) - Main hub for competitive surf
     - [jump.tf](https://jump.tf/forum/) (preferred for RJ/SJ) - Main RJ/SJ forum
+    - [femboy.kz](https://files.femboy.kz/fastdl/csgo/maps/) - CS:GO KZ maps
+    {{<hint info>}}
+    Porting for gldsrc gamemodes (Conc, HL1Bhop, 1.6KZ) as well as Defrag is way more complicated and requires a different approach.  
+    Please follow the [gldsrc porting guide](/guide/mapping/porting_goldsrc_to_source/) and the [Quake 3 porting guide](/guide/mapping/porting_quake3_to_source/). 
+    {{</hint>}}
 3. Rename the map
     - Some map names include version info like _a13, _b2, _njv etc. Rename the **.bsp** file to remove them
     - RJ/SJ maps use **jump_** prefix. This should be changed to **rj_** or **sj_** depending on for which gamemode the map was originally made 
@@ -128,9 +133,9 @@ If you renamed the map during the [setup](/guide/map_submission/map_porting/#set
 
 | Boosters                                                                    | Logic                                                             | Other                                                                       |
 | --------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------   |
-| [trigger_push](/guide/map_submission/fixing_entities/#trigger_push)         | [logic_auto](/guide/map_submission/fixing_entities/#logic_auto)   | [trigger_teleport](/guide/map_submission/fixing_entities/#trigger_teleport) |
-| [trigger_multiple](/guide/map_submission/fixing_entities/#trigger_multiple) | [logic_timer](/guide/map_submission/fixing_entities/#logic_timer) | [func_button](/guide/map_submission/fixing_entities/#func_button)           |
-| [trigger_catapult](/guide/map_submission/fixing_entities/#trigger_catapult) |                                                                   |                                                                             |
+| [trigger_push](/guide/map_submission/fixing_entities/#trigger_push-and-trigger_multiple) | [logic_auto](/guide/map_submission/fixing_entities/#logic_auto)   | [trigger_teleport](/guide/map_submission/fixing_entities/#trigger_teleport) |
+| [trigger_multiple](/guide/map_submission/fixing_entities/#trigger_push-and-trigger_multiple)| [logic_timer](/guide/map_submission/fixing_entities/#logic_timer) | [func_button](/guide/map_submission/fixing_entities/#func_button)           |
+| [trigger_catapult](/guide/map_submission/fixing_entities/#trigger_catapult) |   | [func_door](/guide/map_submission/fixing_entities/#func_door)               |
 
 
 

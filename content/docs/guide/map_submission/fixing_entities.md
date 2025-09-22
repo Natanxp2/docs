@@ -9,72 +9,69 @@ weight: 4
 ---
 
 # Introduction
-This guide provides a list of fixes to apply to entities when porting maps.  
+This guide provides a list of fixes to apply to entities when porting maps  
 If the entity you are looking for is not in here please ask for help in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)  
 Detailed information on entities can also be found on [Valve Developer Wiki](https://developer.valvesoftware.com/wiki/Main_Page)
-
-
-{{< hint info >}} 
-
-This guide will teach you how to make changes using 'Entity Tools' and [export them to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)  
-When making changes using 'Entity Tools' it's perfectly fine to export them to Lumper only once, when you are done with everything, however there is no downside to gradually saving your progress
-
-{{< /hint >}}
 
 # Boosters
 Boosting players can be achieved in various ways and therefore triggers need to be evaluated on a case-by-case basis.  
 This guide will teach you how to fix every common scenario
 
-## trigger_push
-This trigger applies a constant boost to a player inside it's volume. Consider 2 following scenarios
+## trigger_push and trigger_multiple
+trigger_push applies a constant boost to a player inside it's volume  
+trigger_multiple can be used for many purposes, however here we only care about it when it gives the player a singular burst of speed  
+Both need to be modified depending on how you activate them
+
+1. Open entity tools by typing `devui_show entitytools` in console
+    - You can bind this to a key for ease of access, `bind <key> "devui_show entitytools"` in console
+2. Open 'Boost Triggers' section and find the trigger you want to edit
+
+{{<hint info>}}
+
+**Entity tools** will list all boost triggers on the map. You can simply teleport to them one by one by clicking 'Teleport to Trigger' and fix each one based on scenarios listed below  
+When making these changes it's perfectly fine to export them only once, when you are done with everything, however there is no downside to gradually saving your progress
+
+{{</hint>}}
 
 ### Scenario 1: Constant push is required
 On some maps it is necessary for the player to be constantly pushed while inside of the trigger.  
-In that case no modifications are necessary!
+
+#### If the boost is applied in the air
+No modifications are required!
+
+#### If the boost is applied while walking on the ground
+3. Check 'Standable Surface Collision Filter'
+4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+![Floor boost](/images/map_porting/floor_boost.png)
 
 ### Scenario 2: Only a single push matters
-In this case modifications are required depending on where the trigger is placed.
+In this case modifications are required depending on how you activate the trigger.
 
 1. Open entity tools by typing `devui_show entitytools` in console
     - You can bind this to a key for ease of access, `bind <key> "devui_show entitytools"` in console
 2. Find the trigger you want to edit (TODO: ELABORATE WHEN ENTITY TOOLS ARE BETTER, RIO IS FIXING THEM)
 
-#### Trigger is in the middle of the map/stage:
+#### If you activate the trigger by jumping on it:
+3. Click 'Convert to OnJump'
+4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+
+#### If you activate the trigger by flying/surfing into it:
 
 3. Check the 'cooldown' box and type **1** in the textbox
 4. Click 'Apply Changes`
-5. Redo steps 2-4 for all appropriate triggers
-6. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+5. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 ![Surf Ramp Boost](/images/map_porting/surf_ramp_boost.png)
 
-#### Trigger is at the start of the map/stage:
+#### If you activate the trigger by walking into it:
 3. Fail the map/stage and don't move your mouse so you look directly at the trigger
     - You can also set your angle by using `setang X Y Z` command in console
     - If setting the angle manually use multiples of 90 such as `setang 180 0 0` or `setang 0 90 0` to orient yourself properly
 4. Walk into the trigger by pressing **W only**
     - The game will automatically get all relevant information after using the trigger in this way
-5. If the booster is on completely flat ground ( no slopes next to it ) check 'Standable Surface Collision Filter'
-5. Click 'Convert to Set Speed'
-6. Redo steps 2-5 for all appropriate triggers
-7. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+4. Click 'Convert to Set Speed'
+5. Redo steps 2-5 for all appropriate triggers
+6. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 ![Convert To SetSpeed](/images/map_porting/convert_to_setspeed.png)
-
-## trigger_multiple
-This trigger can be used for many various effects, the only ones that are important here are those that act as boosters.  
-'Entity Tools' make it very easy to identify them.  
-
-1. Open entity tools by typing `devui_show entitytools` in console
-    - You can bind this to a key for ease of access, `bind <key> "devui_show entitytools"` in console
-2. Find the trigger you want to edit (TODO: ELABORATE WHEN ENTITY TOOLS ARE BETTER, RIO IS FIXING THEM)
-
-#### If you activate the trigger by jumping on a platform
-3. Click 'Convert to OnJump'
-4. Redo steps 2-3 for all appropriate triggers
-5. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
-
-#### If you activate the trigger by entering it in the air
-3. [Add a cooldown](/guide/map_submission/fixing_entities/#trigger-is-in-the-middle-of-the-mapstage)
-4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 
 ## trigger_catapult
 All catapults that boost the player directly up will be broken in Momentum Mod.  
@@ -123,7 +120,7 @@ In surf it's important that teleports completely disable player movement until t
 3. Select 'Keep Negative Z'
 4. Redo steps 2-3 for all appropriate destinations
 ![Surf Ramp Boost](/images/map_porting/keep_negative_z.png)
-### Rocket Jump / Sticky Jump
+### Rocket Jump
 Sometimes it's possible to hit a teleport while going upwards. This can lead to the player being launched off the platform right after failing  
 You should not blindly edit these using 'Entity Tools' as that may lead to breaking teleport jumps
 
@@ -137,6 +134,7 @@ You should not blindly edit these using 'Entity Tools' as that may lead to break
 ![Fix Preserving Speed](/images/map_porting/fix_preserving_speed.png)
 
 ## func_button
+### Rocket Jump
 Shooting a button to activate it in **Rocket Jump** can have a different effect in Momentum Mod compared to TF2
 1. Check all func_button in Lumper
 2. Identify those that have an 'OnDamaged' output
@@ -145,6 +143,11 @@ Shooting a button to activate it in **Rocket Jump** can have a different effect 
     - To determine if this flag is enabled divide the value in **spawnflags** by 512 and round down the result. If it's **odd** the flag is enabled
 4. If the button is moving very slowly add **1** to **spawnflags** to disable it's movement
 ![Surf Ramp Boost](/images/map_porting/fix_buttons.png)
+
+### Bhop
+
+
+## func_door
     
 
 
