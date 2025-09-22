@@ -28,8 +28,13 @@ Both need to be modified depending on how you activate them
 
 {{<hint info>}}
 
-**Entity tools** will list all boost triggers on the map. You can simply teleport to them one by one by clicking 'Teleport to Trigger' and fix each one based on scenarios listed below  
+**Entity tools** will list all boost triggers on the map. You can teleport to them by clicking 'Teleport to Trigger' and fix each one based on scenarios listed below  
 When making these changes it's perfectly fine to export them only once, when you are done with everything, however there is no downside to gradually saving your progress
+
+{{</hint>}}
+{{<hint info>}}
+
+You can change the font size of **Entity Tools** by using `devui_font_scale` command in console
 
 {{</hint>}}
 
@@ -46,10 +51,6 @@ No modifications are required!
 
 ### Scenario 2: Only a single push matters
 In this case modifications are required depending on how you activate the trigger.
-
-1. Open entity tools by typing `devui_show entitytools` in console
-    - You can bind this to a key for ease of access, `bind <key> "devui_show entitytools"` in console
-2. Find the trigger you want to edit (TODO: ELABORATE WHEN ENTITY TOOLS ARE BETTER, RIO IS FIXING THEM)
 
 #### If you activate the trigger by jumping on it:
 3. Click 'Convert to OnJump'
@@ -69,8 +70,7 @@ In this case modifications are required depending on how you activate the trigge
 4. Walk into the trigger by pressing **W only**
     - The game will automatically get all relevant information after using the trigger in this way
 4. Click 'Convert to Set Speed'
-5. Redo steps 2-5 for all appropriate triggers
-6. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+5. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 ![Convert To SetSpeed](/images/map_porting/convert_to_setspeed.png)
 
 ## trigger_catapult
@@ -119,7 +119,16 @@ In surf it's important that teleports completely disable player movement until t
     - You can check where the entity is by clicking 'Teleport to Destination'
 3. Select 'Keep Negative Z'
 4. Redo steps 2-3 for all appropriate destinations
-![Surf Ramp Boost](/images/map_porting/keep_negative_z.png)
+5. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+![Keep Negative Z](/images/map_porting/keep_negative_z.png)
+
+### Bhop
+Some maps force the player to constantly jump to not get teleported. This can cause issues when rapidly jumping/sliding up slopes or jumping up a ledge when the triggers are sticking out.
+1. Open entity tools by typing `devui_show entitytools` in console
+2. Open the 'Bhop trigger fix' section
+3. Click 'Fix Bhop Triggers'
+4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
+
 ### Rocket Jump
 Sometimes it's possible to hit a teleport while going upwards. This can lead to the player being launched off the platform right after failing  
 You should not blindly edit these using 'Entity Tools' as that may lead to breaking teleport jumps
@@ -127,7 +136,7 @@ You should not blindly edit these using 'Entity Tools' as that may lead to break
 1. Identify the teleport in Lumper by using **Sync Target** or **Sync Pos** option in 'Entity Editor' tab
     - Sync Target will display all entities you are looking at in the game
     - Sync Pos will display all entities in the specified radius around you
-    - Sometimes it can be difficult to find proper triggers because of other entities overlapping them, ask on our [Discord](https://discord.gg/momentummod) in #map-porting channel if you need help
+    - Sometimes it can be difficult to find proper triggers because of other entities overlapping them, ask on our [Discord](https://discord.gg/momentummod) in **#map-porting** channel if you need help
 2. Click on **Add KeyValue**
 3. In the 'newproperty' field type **velocitymode**
 4. In the 'newvalue' field type **1**
@@ -142,23 +151,42 @@ Shooting a button to activate it in **Rocket Jump** can have a different effect 
 3. Add **512** to **spawnflags** if it's not already enabled
     - To determine if this flag is enabled divide the value in **spawnflags** by 512 and round down the result. If it's **odd** the flag is enabled
 4. If the button is moving very slowly add **1** to **spawnflags** to disable it's movement
-![Surf Ramp Boost](/images/map_porting/fix_buttons.png)
+![Fix Buttons](/images/map_porting/fix_buttons.png)
 
-### Bhop
+## trigger_gravity
+Sometimes **trigger_gravity** is meant to apply permanent gravity changes to the player   
 
+{{<hint warning>}}
 
-## func_door
+These changes are usually reverted later in the map. Make sure you modify all permanent gravity changes in this way  
+If the player is meant to have modified gravity **only** when inside of the trigger, you don't need to modify it at all
+
+{{</hint>}}
+
+1. Identify the trigger in Lumper by using **Sync Target** or **Sync Pos** option in 'Entity Editor' tab
+    - Sync Target will display all entities you are looking at in the game
+    - Sync Pos will display all entities in the specified radius around you
+    - Sometimes it can be difficult to find proper triggers because of other entities overlapping them, ask on our [Discord](https://discord.gg/momentummod) in **#map-porting** channel if you need help
+2. Click on **Add KeyValue**
+3. In the 'newproperty' field type **persist**
+4. In the 'newvalue' field type **1**
+![Fix Gravity Triggers](/images/map_porting/fix_gravity_triggers.png)
+
     
-
-
-
 # Export to Lumper
 The changes made with 'Entity Tools' will be reverted once you exit the map.  
 Lumper can be used to apply these changes permanently.
 1. While still in 'Entity Tools' click 'Export To Lumper'
     - This will automatically create a config with all changes you made and switch your tab to 'Jobs'
 2. Run the Job
-![Surf Ramp Boost](/images/map_porting/apply_patches.png)
+
+{{<hint info>}}
+
+Alternatively you can 'Export To File' and then apply it in Lumper using the 'Stripper(File)' job.  
+These files are saved to **/momentum/maps/entitytools_stripper** folder
+
+{{</hint>}}
+![Apply Patches](/images/map_porting/apply_patches.png)
 
 
  

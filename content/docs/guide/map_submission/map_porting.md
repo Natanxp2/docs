@@ -19,7 +19,7 @@ You are free to port any publically available map with some exceptions:
 - When in doubt, contact the mapper ( please don't spam them )
 
 # Setup
-If you have any questions feel free to ask for help in #map-porting channel on our [Discord](https://discord.gg/momentummod)!
+If you have any questions feel free to ask for help in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)!
 
 1. Download [Lumper](https://github.com/momentum-mod/lumper), we will use it to modify the map
 2. Download the map you want to port (maps in **.bz2** format can be extracted using [7zip](https://www.7-zip.org/)):
@@ -116,12 +116,17 @@ Sounds in Momentum Mod need to be categorized properly for volume sliders to wor
 | Weapons  | sound/weapon/  |
 | UI       | sound/ui/      |
 
+![Moving Sounds](/images/map_porting/lumper_sound_moving.png)
+
+
+
 ### Cubemaps
-If you renamed the map during the [setup](/guide/map_submission/map_porting/#setup), reflections might be broken.
+If you renamed the map during the [setup](/guide/map_submission/map_porting/#setup), reflections might be broken  
+You can skip this step if you didn't rename the map  
 1. Go to 'Pakfile Explorer' in Lumper
 2. Check if the map has **/materials/maps/<old_map_name>** folder
 3. If it does right click → Rename that folder to the new map name. Click **yes** on the pop-up
-![rename_cubemaps](/images/map_porting/rename_cubemaps.png)
+![Rename Cubemaps](/images/map_porting/rename_cubemaps.png)
 
 ## Step 4: Fix Entities
 1. Go to the 'Entity Report' tab in Lumper.
@@ -131,35 +136,125 @@ If you renamed the map during the [setup](/guide/map_submission/map_porting/#set
     - Some **warnings** can be fixed, some will need to be removed, and some can stay unchanged.
     - Thanks to game sync, you can teleport to any entity simply by clicking the button next to it in 'Entity Editor' tab
 
-| Boosters                                                                    | Logic                                                             | Other                                                                       |
-| --------------------------------------------------------------------------- | ----------------------------------------------------------------- | -------------------------------------------------------------------------   |
-| [trigger_push](/guide/map_submission/fixing_entities/#trigger_push-and-trigger_multiple) | [logic_auto](/guide/map_submission/fixing_entities/#logic_auto)   | [trigger_teleport](/guide/map_submission/fixing_entities/#trigger_teleport) |
+| Boosters                                                                                    | Logic                                                             | Other                                                                       |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| [trigger_push](/guide/map_submission/fixing_entities/#trigger_push-and-trigger_multiple)    | [logic_auto](/guide/map_submission/fixing_entities/#logic_auto)   | [trigger_teleport](/guide/map_submission/fixing_entities/#trigger_teleport) |
 | [trigger_multiple](/guide/map_submission/fixing_entities/#trigger_push-and-trigger_multiple)| [logic_timer](/guide/map_submission/fixing_entities/#logic_timer) | [func_button](/guide/map_submission/fixing_entities/#func_button)           |
-| [trigger_catapult](/guide/map_submission/fixing_entities/#trigger_catapult) |   | [func_door](/guide/map_submission/fixing_entities/#func_door)               |
+| [trigger_catapult](/guide/map_submission/fixing_entities/#trigger_catapult)                 |                                                                   | [trigger_gravity](/guide/map_submission/fixing_entities/#trigger_gravity)   |
 
 
+## Step 4.5: Other Fixes
+Vast majority of maps will **not** require any of the fixes covered in this section.  
+These are still common enough though, that they need to be covered in this guide.  
+Please look through them but more likely than not you will be ready to move on to [Step 5](/guide/map_submission/map_porting/)
 
 
-# UNFINISHED STUFF BELOW
+### Old Bhop platforms
+Some old bhop maps use **func_button** or **func_door** for bhop platform. These should be converted to **func_bhop**
+1. Open entity tools by typing `devui_show entitytools` in console
+2. Open the 'Bhop Block Fix' section
+    - If the number of 'Bhop Blockfix Entities' is **0** you don't need to fix anything
+3. Make sure the checkbox is ticked ( it should be by default )
+4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 
+### Stripper Configs
+Community servers sometimes apply server side fixes to maps ( mainly applicable to Rocket Jump / Sticky Jump )  
+You can apply them permanently to the **.bsp** with Lumper
+
+- [Tempus ( Rocket Jump / Sticky Jump )](https://github.com/waldotf/tempus_stripper_code)
+
+{{<hint danger>}}
+
+While these are sometimes useful, **a lot of them** are not applicable to Momentum Mod  
+Read through them carefully before deciding to apply them  
+If you're not sure if you should use them, please ask in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)
+
+{{</hint>}}
+
+1. Download the **.cfg** file
+2. Go to 'Jobs' tab in Lumper
+3. Add the 'Stripper (File)' job
+4. Provide the path to your downloaded **.cfg** and run the job
+![Download Stripper Config](/images/map_porting/download_stripper_config.png)
+![Apply Stripper Config](/images/map_porting/apply_stripper_config.png)
+
+### Invalid VMT Files
+Momentum Mod uses stricter parsing rules than other source games  
+Fix **.vmt** of broken textures using the 'Pakfile Explorer' in Lumper
+![Invalid VMT](/images/map_porting/invalid_vmt.png)
+![Invalid VMT Lumper](/images/map_porting/invalid_vmt_lumper.png)
+
+### Missing Skyboxes
+Skyboxes will sometimes fail to load in maps compiled with HDR.
+1. Go to 'Pakfile Explorer' tab
+2. Find the **.vmts** of the skybox
+    - It will be in **/materials/skybox**
+    - There will be 6 pairs of **.vmt** and **.vtf**, one for each side
+3. Open every **.vmt** and change the first line to **"Sky_SDR"** (including quotes)  
+TODO: GET A PROPER LUMPER SCREENSHOT FOR THIS. WHAT IS THE MAP BELOW?
+![VTF Edit Sky SDR](/images/map_porting/vtfedit_sky_sdr.png)
+![HDR Skybox](/images/map_porting/hdr_skybox.png)
+
+### Missing Shadows on CS:GO Maps
+Some CS:GO maps use cascaded shadow maps (CSM) to create more detailed shadows  
+In Momentum Mod **env_cascade_light** entity must exist for them to display properly
+
+1. Go to 'Entity Editor'
+2. Click the **+**
+    - This will create an empty entity showing as **\<missing classname!\>** in the list
+3. Fill out the new entity using the image below
+    - Copy the origin value from any other entity
+![CSM Lumper](/images/map_porting/csm_lumper.png)
+![Missing CSM Entity](/images/map_porting/csm_broken.png)
+![Working CSM](/images/map_porting/csm_working.png)
+
+### Corrupt HDR Cubemaps
+Some maps from CS:S have corrupted reflections in Momentum Mod.  
+In cases we've seen they've been flat blue/black textures.  
+[github info for later](https://github.com/momentum-mod/game/issues/2315#issuecomment-3097105058).  
+TODO: ACTUALLY ADD STEPS TO FIX THIS: [Asked about it on discord](https://discord.com/channels/235111289435717633/569734083496902656/1419721854020489407)
+
+![Corrupt Cubemaps](/images/map_porting/corrupt_cubemaps.png)
+
+### Broken / Missing triggers
+On very rare occassions maps can have missing or misplaced triggers.  
+It's possible to add any rectangular triggers to the map without decompiling by using community made tools and Lumper
+- [vmf_to_stripper](https://github.com/benjl/vmf_to_stripper/) - Allows for converting triggers made in hammer to a stripper config
+- [zoneToTrigger](https://github.com/Natanxp2/zoneToTrigger) - Allows for converting [Momentum Mod zones](/guide/map_submission/map_zoning/) to a stripper config
+
+{{<hint danger>}}
+
+Be very careful when modifying maps in this way.  
+It's best to contact the mapper to make sure they are fine with whatever you are trying to do  
+You can always ask for help in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)
+
+{{</hint>}}
+
+### Collectibles
+Maps with collectibles can be ported in 2 ways
+- Convert the collectible system triggers to [Momentum's collectible system entities](/guide/collectibles/)
+- [Zone the map](/guide/map_submission/map_zoning/) using unordered, required checkpoints
+
+{{<hint warning>}}
+
+Converting collectibles to Momentum Mod's system can be complicated.  
+There is no one-way-fits-all solution.  
+Apply your best judgement when attempting it.
+
+{{</hint>}}
 
 ### Moving Brushes
 
-Some maps have moving brushes which have cycles that are too fast to be hit consistently which effectively introduces RNG to competitive runs (e.g. surf_fruits stage 5 / strawberry). If there's community consensus on this (existing servers usually already have that), they should be frozen or deleted.
+Some maps have moving brushes which have cycles that are too fast to be hit consistently which effectively introduces RNG to competitive runs.    
+They should be frozen or deleted **only** if there is **community consensus** around it.  
+If you're not sure about this, please ask in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)!
+![Moving Brushes](/images/map_porting/moving_brushes.gif)
 
-### Collectibles
+## Step 5: [Zone the Map](/guide/map_submission/map_zoning/)
+## Step 6: [Submit the Map](/guide/map_submission/map_submission/)
 
-Complicated collectible system triggers can be converted to [Momentum's collectible system entities](/guide/collectibles/). This is far less complicated and, facilitates future collectibles HUD work.
-
-If a map's collectibles amount to simply hitting several triggers in arbitrary order, it may work best to just zone with unordered checkpoints. This provides practically the gameplay, and is clearer in game UI!
-
-### Stripper Configs
-
-Community servers often use Stripper configs for tweaking maps at runtime. Lumper can permanently apply the config using the "Stripper Config (File)" job, but **_do not blindly apply configs you find online_**! These configs can be useful as a reference, but it's almost always better to apply changes manually by editing the entity lump; many of the changes are not applicable to Momentum.
-
-- Tempus (RJ/SJ) https://github.com/waldotf/tempus_stripper_code
-
-## Textures
+# UNFINISHED STUFF ///// NEED REVIEW ------------------------------------------------------------------------
+## Textures - CAN'T LUMPER REPLACE THEM DIRECTLY? DO WE WANT PEOPLE REPLACING TEXTURES WITHOUT CONSULTING ANYONE? --- I WOULD NOT INCLUDE THIS AT ALL
 
 The easiest way to replace a texture is to modify any VMT files that refer to the VTF file in question.
 
@@ -174,32 +269,7 @@ VMTs are text files that define how the texture is used in the game, such as its
 
 Note that multiple VMT files can refer to the same VTF file, so you may need to check multiple VMTs if the texture is used in multiple places. {{< /hint >}}
 
-
-## Limited Ammo Triggers
-
-Maps ported from TF2 for RJ and SJ sometimes have sections which limit the player's ammo. If infinite ammo throughout the map would significantly change the gameplay experience, consider adding ammo triggers to the map. Information concerning the ammo system in Momentum Mod can be found at [Ammo System](/guide/mapping/ammo_system).
-
-Certain triggers can be added to a bsp file without having to recompile the map with the help of generated stripper configs that can be executed in Lumper. Tools available to help create these stripper configs include [vmf_to_stripper](https://github.com/benjl/vmf_to_stripper/) and [zoneToTrigger](https://github.com/Natanxp2/zoneToTrigger).
-
-# Common Issues Porting Older Maps
-
-When porting maps from older Source engine versions, there are a few issues that might come up due to incompatibilities with Strata Source.
-
-## HDR Skyboxes
-
-Skyboxes will sometimes fail to load in maps compiled with HDR. This is because the "sky" shader defaults to HDR, but will fail to load if the textures are not HDR. This issue can be fixed by setting the shader to "Sky_SDR".
-
-![HDR Skybox](/images/map_porting/hdr_skybox.png)
-
-![VTF Edit Sky SDR](/images/map_porting/vtfedit_sky_sdr.png)
-
-## Corrupt HDR Cubemaps
-
-Some maps from CS:S have corrupted HDR cubemaps in Momentum. If you notice this, you can try find working cubemaps from the CS:GO version. In cases we've seen they've been flat black textures, so you can replace HDR version with these VTFs (TODO: add these). [See this Github issue for discussion](https://github.com/momentum-mod/game/issues/2315#issuecomment-3097105058).
-
-![Corrupt Cubemaps](/images/map_porting/corrupt_cubemaps.png)
-
-## Dark Refraction Textures
+## Dark Refraction Textures - THIS SHOULD BE FIXED AND NOT COVERED IN THIS GUIDE EVEN NOW --- PEOPLE SHOULDN'T BE RECOMPILING MAPS
 
 Refraction textures in most maps do not render correctly. The cause of this issue is unknown and the only way to fix it currently is to recompile.
 
@@ -207,22 +277,5 @@ Refraction textures in most maps do not render correctly. The cause of this issu
 
 ![Fixed Refraction Textures](/images/map_porting/refaction_fixed.png)
 
-## Invalid VMT Files
 
-Strata Source has stricter VMT parsing rules and will not load VMTs with syntax errors. These invalid VMT files must be manually fixed in Lumper or VTFEdit in order for the textures to load in game.
 
-![Invalid VMT](/images/map_porting/invalid_vmt.png)
-
-![Invalid VMT Lumper](/images/map_porting/invalid_vmt_lumper.png)
-
-## Missing Shadows on CS:GO Maps
-
-Some CS:GO maps use cascaded shadow maps (CSM) to create more detailed shadows. If these maps do not use an `env_cascade_light` entity, then these detailed shadows will not display in Momentum Mod.
-
-![Missing CSM Entity](/images/map_porting/csm_broken.png)
-
-![Working CSM](/images/map_porting/csm_working.png)
-
-In order to fix this, add a `env_cascade_light` with Lumper:
-
-![CSM Lumper](/images/map_porting/csm_lumper.png)
