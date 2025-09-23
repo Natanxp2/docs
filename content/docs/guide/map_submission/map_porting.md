@@ -151,165 +151,49 @@ Vast majority of maps will **not** require any of the fixes covered in this sect
 These are still common enough though, that they need to be covered in this guide.  
 Please look through them but more likely than not you will be ready to move on to [Step 5](/guide/map_submission/map_porting/)
 
+| Entity Fixes                                                                                      | Broken Textures / Models                                                                             |
+| ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [Old Bhop Platforms](/guide/map_submission/fixing_entities/#old-bhop-platforms)                   | [Small Models](/guide/map_submission/fixing_entities/#small-models)                                  |
+| [Stripper Configs](/guide/map_submission/fixing_entities/#stripper-configs)                       | [Broken Textures](/guide/map_submission/fixing_entities/#invalid-vmt-files)                          |
+| [Misplaced / Missing Triggers](/guide/map_submission/fixing_entities/#misplaced--missing-triggers)| [Missing Skyboxes](/guide/map_submission/fixing_entities/#missing-skyboxes)                          |
+| [Collectibles](/guide/map_submission/fixing_entities/#collectibles)                               | [Missing Shadows on CS:GO Maps](/guide/map_submission/fixing_entities/#missing-shadows-on-csgo-maps) |  
+| [Moving Brushes](/guide/map_submission/fixing_entities/#moving-brushes)                           | [Corrupted Reflections](/guide/map_submission/fixing_entities/#corrupt-hdr-cubemaps)                 |                                                       
 
-### Old Bhop Platforms
-Some old bhop maps use **func_button** or **func_door** for bhop platform. These should be converted to **func_bhop**
-1. Open entity tools by typing `devui_show entitytools` in console
-2. Open the 'Bhop Block Fix' section
-    - If the number of 'Bhop Blockfix Entities' is **0** you don't need to fix anything
-3. Make sure the checkbox is ticked ( it should be by default )
-4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 
-### Small Models
-Maps compiled on an old version of source engine can have models that are too small.
-1. Open entity tools by typing `devui_show entitytools` in console
-2. Open the 'Model Scale Fix' Section
-3. Click 'Fix All Model Scales'
-4. [Export to Lumper](/guide/map_submission/fixing_entities/#export-to-lumper)
 
-![Small Models Before](/images/map_porting/fix_model_scale_before.png)
-![Small Models After](/images/map_porting/fix_model_scale_after.png)
 
-### Stripper Configs
-Community servers sometimes apply server side fixes to maps ( mainly applicable to Rocket Jump / Sticky Jump )  
-You can apply them permanently to the **.bsp** with Lumper
 
-- [Tempus ( Rocket Jump / Sticky Jump )](https://github.com/waldotf/tempus_stripper_code)
 
-{{<hint danger>}}
-
-While these are sometimes useful, **a lot of them** are not applicable to Momentum Mod  
-Read through them carefully before deciding to apply them  
-If you're not sure if you should use them, please ask in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)
-
-{{</hint>}}
-
-1. Download the **.cfg** file
-2. Go to 'Jobs' tab in Lumper
-3. Add the 'Stripper (File)' job
-4. Provide the path to your downloaded **.cfg** and run the job
-
-![Download Stripper Config](/images/map_porting/download_stripper_config.png)
-![Apply Stripper Config](/images/map_porting/apply_stripper_config.png)
-
-### Invalid VMT Files
-Momentum Mod uses stricter parsing rules than other source games  
-Fix **.vmt** of broken textures using the 'Pakfile Explorer' in Lumper
-
-![Invalid VMT](/images/map_porting/invalid_vmt.png)
-![Invalid VMT Lumper](/images/map_porting/invalid_vmt_lumper.png)
-
-### Missing Skyboxes
-Skyboxes will sometimes fail to load in maps compiled with HDR.
-1. Go to 'Pakfile Explorer' tab
-2. Find the **.vmts** of the skybox
-    - It will be in **/materials/skybox**
-    - There will be 6 pairs of **.vmt** and **.vtf**, one for each side
-3. Open every **.vmt** and change the first line to **"Sky_SDR"** (including quotes)
-
-![VTF Edit Sky SDR](/images/map_porting/lumper_sky_sdr.png)
-![HDR Skybox](/images/map_porting/hdr_skybox.png)
-
-### Missing Shadows on CS:GO Maps
-Some CS:GO maps use cascaded shadow maps (CSM) to create more detailed shadows  
-In Momentum Mod **env_cascade_light** entity must exist for them to display properly
-
-1. Go to 'Entity Editor'
-2. Click the **+**
-    - This will create an empty entity showing as **\<missing classname!\>** in the list
-3. Fill out the new entity using the image below
-    - Copy the origin value from any other entity
-    
-![CSM Lumper](/images/map_porting/csm_lumper.png)
-![Missing CSM Entity](/images/map_porting/csm_broken.png)
-![Working CSM](/images/map_porting/csm_working.png)
-
-### Corrupt HDR Cubemaps
-Some maps from CS:S have corrupted reflections in Momentum Mod.  
-In cases we've seen they've been flat blue/black textures.  
-1. Download the CS:GO version of the map
-    - Check if it exists on [gamebanana](https://gamebanana.com/) or [surfheaven](https://surfheaven.eu/)
-2. Open it in lumper and go to the 'Pakfile Explorer' tab
-3. Export the entire **/materials/maps** folder
-4. Close Lumper
-    - You may now delete the cs:go port you downloaded
-5. Open the map you were porting in Lumper
-6. In 'Pakfile Explorer' delete the entire **/materials/maps** folder
-7. Right click on **/materials** and create a new **/maps** folder
-8. Right click on **/maps** → Import Directory
-9. Import the **maps** folder you extracted
-
+## Step 5: Compress the Map
+Compression will **significantly** reduce the filesize.
+1. Check **Save Compressed**
+2. Check **Update filename-specific Content**
+3. Click **Save**  
 {{<hint info>}}
 
-If the CS:GO port doesn't exist you can manually delete → import → rename every single **.vtf** file in **/materials/maps** with [this file](https://cdn.discordapp.com/attachments/1370920480910999614/1402525150955700224/c-2569_4133_3847.hdr.vtf?ex=68d2da15&is=68d18895&hm=e1d55c87f0283e7bfde1b2b9372b62d6002314d937f157b7fff9112fd8d02841&)  
-You need to make sure all filenames match **exactly** after importing and renaming  
-The best way is to copy the **.bsp** for backup and open 2 Lumper windows side by side so that you can copy the filenames from one to the other  
-TODO: Rewrite if replacing textures with vtfs is added to lumper
+This is the last thing you will have to do in Lumper.  
+Feel free to close it.
 
 {{</hint>}}
+![Save Compressed](/images/map_porting/lumper_compress.png)
+## Step 5: Zone the Map
+Follow the [Zoning Guide](/guide/map_submission/map_zoning/).  
+It will teach you how to add the **Start** and **Endzone**, **Bonuses**, **Stages**, and **Checkpoints**!
+## Step 6: Submit the Map
+You have successfully ported the map!  
+All that's left to do is **Submit the Files** and all relevant information.  
+Follow the [Map Submission Guide](/guide/map_submission/map_submission/)!
 
-![Corrupt Cubemaps](/images/map_porting/corrupt_cubemaps.png)
 
-### Broken / Missing triggers
-On very rare occassions maps can have missing or misplaced triggers.  
-It's possible to add any rectangular triggers to the map without decompiling by using community made tools and Lumper
-- [vmf_to_stripper](https://github.com/benjl/vmf_to_stripper/) - Allows for converting triggers made in hammer to a stripper config
-- [zoneToTrigger](https://github.com/Natanxp2/zoneToTrigger) - Allows for converting [Momentum Mod zones](/guide/map_submission/map_zoning/) to a stripper config
 
-{{<hint danger>}}
 
-Be very careful when modifying maps in this way.  
-It's best to contact the mapper to make sure they are fine with whatever you are trying to do  
-You can always ask for help in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)
 
-{{</hint>}}
 
-### Collectibles
-Maps with collectibles can be ported in 2 ways
-- Convert the collectible system triggers to [Momentum's collectible system entities](/guide/collectibles/)
-- [Zone the map](/guide/map_submission/map_zoning/) using unordered, required checkpoints
 
-{{<hint warning>}}
 
-Converting collectibles to Momentum Mod's system can be complicated.  
-There is no one-way-fits-all solution.  
-Apply your best judgement when attempting it.
 
-{{</hint>}}
 
-### Moving Brushes
 
-Some maps have moving brushes which have cycles that are too fast to be hit consistently which effectively introduces RNG to competitive runs.    
-They should be frozen or deleted **only** if there is **community consensus** around it.  
-If you're not sure about this, please ask in **#map-porting** channel on our [Discord](https://discord.gg/momentummod)!
-
-![Moving Brushes](/images/map_porting/moving_brushes.gif)
-
-## Step 5: [Zone the Map](/guide/map_submission/map_zoning/)
-## Step 6: [Submit the Map](/guide/map_submission/map_submission/)
-
-# UNFINISHED STUFF ///// NEED REVIEW ------------------------------------------------------------------------
-## Textures - CAN'T LUMPER REPLACE THEM DIRECTLY? DO WE WANT PEOPLE REPLACING TEXTURES WITHOUT CONSULTING ANYONE? --- I WOULD NOT INCLUDE THIS AT ALL
-
-The easiest way to replace a texture is to modify any VMT files that refer to the VTF file in question.
-
-- Find any instances of VMTs files that refer to that VTF file in the Pakfile Explorer
-  - Currently we don't have automation for this, but it's usually relatively obvious
-- Replace the `$basetexture` value (maybe also `$bumpmap` and others) with some other texture on the map that won't look out-of-place
-- Remove the original VTF file via Texture Browser / Pakfile Explorer
-
-{{< hint info >}} Source engine textures are stored in **VTF** files, which are the image files, and **VMT** files, which are the material definitions for those textures.
-
-VMTs are text files that define how the texture is used in the game, such as its shader type, properties, and other settings. VMTs are _usually_ stored in the same directory as the VTF files, and have the same name as the VTF file, but with a `.vmt` extension.
-
-Note that multiple VMT files can refer to the same VTF file, so you may need to check multiple VMTs if the texture is used in multiple places. {{< /hint >}}
-
-## Dark Refraction Textures - THIS SHOULD BE FIXED AND NOT COVERED IN THIS GUIDE EVEN NOW --- PEOPLE SHOULDN'T BE RECOMPILING MAPS
-
-Refraction textures in most maps do not render correctly. The cause of this issue is unknown and the only way to fix it currently is to recompile.
-
-![Dark Refraction Textures](/images/map_porting/refraction_dark.png)
-![Fixed Refraction Textures](/images/map_porting/refaction_fixed.png)
 
 
 
